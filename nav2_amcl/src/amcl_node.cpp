@@ -85,7 +85,7 @@ AmclNode::AmclNode(const rclcpp::NodeOptions & options)
     "This is the alpha5 parameter", "These are additional constraints for alpha5");
 
   add_parameter(
-    "base_frame_id", rclcpp::ParameterValue(std::string("base_footprint")),
+    "base_frame_id", rclcpp::ParameterValue(std::string("base_link")),
     "Which frame to use for the robot base");
 
   add_parameter("beam_skip_distance", rclcpp::ParameterValue(0.5));

@@ -88,7 +88,7 @@
           "frame:odom": {
             "visible": true
           },
-          "frame:base_footprint": {
+          "frame:base_link": {
             "visible": true
           },
           "frame:wheel_left_link": {
@@ -313,7 +313,7 @@
           "frame:odom": {
             "visible": true
           },
-          "frame:base_footprint": {
+          "frame:base_link": {
             "visible": true
           },
           "frame:wheel_left_link": {

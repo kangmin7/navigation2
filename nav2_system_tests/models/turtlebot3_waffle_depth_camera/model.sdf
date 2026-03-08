@@ -3,7 +3,7 @@
   <model name="TurtleBot3_Waffle_DepthCamera">
   <pose>0.0 0.0 0.0 0.0 0.0 0.0</pose>
 
-    <link name="base_footprint"/>
+    <link name="base_link"/>
 
     <link name="base_link">
 
@@ -359,7 +359,7 @@
     </link>
 
     <joint name="base_joint" type="fixed">
-      <parent>base_footprint</parent>
+      <parent>base_link</parent>
       <child>base_link</child>
       <pose>0.0 0.0 0.010 0 0 0</pose>
     </joint>
@@ -436,7 +436,7 @@
 
       <odometry_topic>odom</odometry_topic>
       <odometry_frame>odom</odometry_frame>
-      <robot_base_frame>base_footprint</robot_base_frame>
+      <robot_base_frame>base_link</robot_base_frame>
 
     </plugin>
 

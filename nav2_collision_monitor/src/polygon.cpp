@@ -176,7 +176,7 @@ double Polygon::getCollisionTime(
   const std::vector<Point> & collision_points,
   const Velocity & velocity) const
 {
-  // Initial robot pose is {0,0} in base_footprint coordinates
+  // Initial robot pose is {0,0} in base_link coordinates
   Pose pose = {0.0, 0.0, 0.0};
   Velocity vel = velocity;
 

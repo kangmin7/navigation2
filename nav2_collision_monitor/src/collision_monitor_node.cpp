@@ -198,7 +198,7 @@ bool CollisionMonitor::getParameters(
   cmd_vel_out_topic = get_parameter("cmd_vel_out_topic").as_string();
 
   nav2_util::declare_parameter_if_not_declared(
-    node, "base_frame_id", rclcpp::ParameterValue("base_footprint"));
+    node, "base_frame_id", rclcpp::ParameterValue("base_link"));
   base_frame_id = get_parameter("base_frame_id").as_string();
   nav2_util::declare_parameter_if_not_declared(
     node, "odom_frame_id", rclcpp::ParameterValue("odom"));
