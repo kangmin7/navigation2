@@ -119,13 +119,11 @@ controller_server:
       vx_min: -0.5
       vy_max: 0.5
       vy_min: -0.5
-      wz_max: 0.0
-      wz_min: 0.0
+      wz_max: 1.0
       ax_max: 2.0
       ax_min: -2.0
       ay_max: 2.0
       ay_min: -2.0
-      az_max: 0.0
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 1.0
@@ -312,8 +310,8 @@ velocity_smoother:
     scale_velocities: False
     feedback: "OPEN_LOOP"
     # Match these to your vehicle's actual limits.
-    max_velocity: [0.5, 0.0, 1.0]
-    min_velocity: [-0.5, 0.0, -1.0]
+    max_velocity: [0.5, 0.5, 1.0]
+    min_velocity: [-0.5, -0.5, -1.0]
     max_accel: [2.0, 0.0, 3.2]
     max_decel: [-2.0, 0.0, -3.2]
     # MAVROS local position odometry topic

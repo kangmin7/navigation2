@@ -25,8 +25,8 @@
 #      cmd_vel_to_mavros via the velocity smoother.
 #    - Bridge rotates linear.x/y from body frame → ENU world frame using
 #      current yaw from TF (map → base_link), then forwards to MAVROS.
-#    - angular.z tracks goal direction via a proportional yaw controller.
-#      (MPPI runs with wz_max=0 so Nav2 never commands yaw directly.)
+#    - angular.z is passed through unchanged (yaw rate is frame-invariant
+#      for planar rotation; MPPI commands it directly with wz_max=1.0).
 #
 # Frame convention
 # ----------------
@@ -42,7 +42,7 @@
 #   2. Switch PX4 to OFFBOARD mode
 #   3. Arm the vehicle
 #   4. Nav2 plans a path and MPPI tracks it; bridge converts and forwards
-#      the smoothed cmd_vel to MAVROS while adding a yaw rate command.
+#      the smoothed cmd_vel (including yaw rate) to MAVROS.
 #   5. Within goal_tolerance  →  publishes zero vel (drone holds position)
 
 import math
@@ -67,8 +67,6 @@ class PX4MavrosBridge(Node):
         self.declare_parameter('nav2_cmd_vel_topic', 'cmd_vel_to_mavros')
         self.declare_parameter('setpoint_rate', 10.0)
         self.declare_parameter('goal_tolerance', 0.25)  # m — stop
-        self.declare_parameter('yaw_kp', 1.0)           # proportional gain for yaw
-        self.declare_parameter('max_yaw_rate', 1.0)     # rad/s
 
         mavros_odom_topic = self.get_parameter(
             'mavros_odom_topic').get_parameter_value().string_value
@@ -80,10 +78,6 @@ class PX4MavrosBridge(Node):
             'setpoint_rate').get_parameter_value().double_value
         self._goal_tolerance = self.get_parameter(
             'goal_tolerance').get_parameter_value().double_value
-        self._yaw_kp = self.get_parameter(
-            'yaw_kp').get_parameter_value().double_value
-        self._max_yaw_rate = self.get_parameter(
-            'max_yaw_rate').get_parameter_value().double_value
 
         # TF — used to get current yaw for body→world rotation and yaw control
         self._tf_buffer = Buffer()
@@ -166,19 +160,14 @@ class PX4MavrosBridge(Node):
         cmd = Twist()  # zero by default
 
         if dist > self._goal_tolerance:
-            # Rotate Nav2 body-frame cmd_vel → ENU world frame
+            # Rotate Nav2 body-frame linear vel → ENU world frame
             vx_body = self._nav2_cmd.linear.x
             vy_body = self._nav2_cmd.linear.y
             cmd.linear.x = math.cos(yaw) * vx_body - math.sin(yaw) * vy_body
             cmd.linear.y = math.sin(yaw) * vx_body + math.cos(yaw) * vy_body
 
-            # Yaw: proportional controller toward goal direction
-            desired_yaw = math.atan2(dy, dx)
-            yaw_error = math.atan2(math.sin(desired_yaw - yaw),
-                                   math.cos(desired_yaw - yaw))
-            cmd.angular.z = max(-self._max_yaw_rate,
-                                min(self._max_yaw_rate,
-                                    self._yaw_kp * yaw_error))
+            # Yaw rate is frame-invariant — pass MPPI's command through directly
+            cmd.angular.z = self._nav2_cmd.angular.z
 
         self._setpoint_pub.publish(cmd)
 
