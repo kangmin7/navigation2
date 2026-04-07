@@ -28,7 +28,7 @@
 #    - Direction vector in map frame decomposed into body-frame x/y:
 #          vx_body =  cos(yaw)*vx_map + sin(yaw)*vy_map
 #          vy_body = -sin(yaw)*vx_map + cos(yaw)*vy_map
-#    - angular.z = 0 always (yaw held fixed)
+#    - angular.z tracks goal direction via proportional controller (yaw_kp * yaw_error)
 #
 # Workflow
 # --------
@@ -61,6 +61,9 @@ class PX4MavrosBridge(Node):
         self.declare_parameter('max_speed', 0.5)       # m/s
         self.declare_parameter('approach_dist', 1.0)   # m — start slowing
         self.declare_parameter('goal_tolerance', 0.25) # m — stop
+        self.declare_parameter('yaw_kp', 1.0)          # proportional gain for yaw
+        self.declare_parameter('max_yaw_rate', 1.0)    # rad/s
+
         mavros_odom_topic = self.get_parameter(
             'mavros_odom_topic').get_parameter_value().string_value
         mavros_cmd_vel_topic = self.get_parameter(
@@ -73,6 +76,10 @@ class PX4MavrosBridge(Node):
             'approach_dist').get_parameter_value().double_value
         self._goal_tolerance = self.get_parameter(
             'goal_tolerance').get_parameter_value().double_value
+        self._yaw_kp = self.get_parameter(
+            'yaw_kp').get_parameter_value().double_value
+        self._max_yaw_rate = self.get_parameter(
+            'max_yaw_rate').get_parameter_value().double_value
 
         # TF — used to get robot pose in map frame
         self._tf_buffer = Buffer()
@@ -155,15 +162,18 @@ class PX4MavrosBridge(Node):
             if dist < self._approach_dist:
                 speed = self._max_speed * (dist / self._approach_dist)
 
-            # Velocity direction in map frame
-            vx_map = speed * dx / dist
-            vy_map = speed * dy / dist
+            # Velocity in map (ENU world) frame — MAVROS cmd_vel_unstamped
+            # interprets linear.x/y as ENU velocities, not body-frame.
+            cmd.linear.x = speed * dx / dist
+            cmd.linear.y = speed * dy / dist
 
-            # Rotate into body frame (world→body = rotate by -yaw)
-            cmd.linear.x = math.cos(yaw) * vx_map + math.sin(yaw) * vy_map
-            cmd.linear.y = -math.sin(yaw) * vx_map + math.cos(yaw) * vy_map
-
-            # Yaw is held fixed — angular.z stays 0.0 (Twist default)
+            # Yaw: proportional controller toward goal direction
+            desired_yaw = math.atan2(dy, dx)
+            yaw_error = math.atan2(math.sin(desired_yaw - yaw),
+                                   math.cos(desired_yaw - yaw))
+            cmd.angular.z = max(-self._max_yaw_rate,
+                                min(self._max_yaw_rate,
+                                    self._yaw_kp * yaw_error))
 
         self._setpoint_pub.publish(cmd)
 
