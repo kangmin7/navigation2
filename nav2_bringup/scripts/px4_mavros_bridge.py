@@ -38,7 +38,7 @@
 #
 # Workflow
 # --------
-#   1. Set goal in RViz2 OR exploration publishes /path  →  bridge enters ACTIVE,
+#   1. Set goal in RViz2 OR Nav2 planner publishes /plan  →  bridge enters ACTIVE,
 #      starts 10 Hz setpoints
 #   2. Switch PX4 to OFFBOARD mode
 #   3. Arm the vehicle
