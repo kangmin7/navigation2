@@ -82,8 +82,9 @@ def generate_launch_description():
     param_substitutions = {
         'use_sim_time': use_sim_time,
         'autostart': autostart,
-        # Inject the MAVROS odom topic into nodes that accept it as a parameter.
-        'odom_topic': mavros_odom_topic,
+        # Nav2 nodes use /odom — the bridge relays MAVROS odom there with
+        # RELIABLE QoS so Nav2's default RELIABLE subscribers don't mismatch.
+        'odom_topic': '/odom',
     }
 
     configured_params = RewrittenYaml(

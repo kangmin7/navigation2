@@ -38,7 +38,8 @@
 #
 # Workflow
 # --------
-#   1. Set goal in RViz2  →  bridge enters ACTIVE, starts 10 Hz setpoints
+#   1. Set goal in RViz2 OR exploration publishes /path  →  bridge enters ACTIVE,
+#      starts 10 Hz setpoints
 #   2. Switch PX4 to OFFBOARD mode
 #   3. Arm the vehicle
 #   4. Nav2 plans a path and MPPI tracks it; bridge converts and forwards
@@ -50,8 +51,9 @@ import math
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 from geometry_msgs.msg import PoseStamped, Twist
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, Path
 from tf2_ros import Buffer, TransformListener, LookupException, \
     ConnectivityException, ExtrapolationException
 
@@ -79,6 +81,12 @@ class PX4MavrosBridge(Node):
         self._goal_tolerance = self.get_parameter(
             'goal_tolerance').get_parameter_value().double_value
 
+        # QoS profile matching MAVROS sensor topics (best-effort, keep last 10)
+        mavros_qos = QoSProfile(
+            reliability=ReliabilityPolicy.BEST_EFFORT,
+            history=HistoryPolicy.KEEP_LAST,
+            depth=10)
+
         # TF — used to get current yaw for body→world rotation and yaw control
         self._tf_buffer = Buffer()
         self._tf_listener = TransformListener(self._tf_buffer, self)
@@ -97,8 +105,10 @@ class PX4MavrosBridge(Node):
         # Subscribers
         self._goal_sub = self.create_subscription(
             PoseStamped, '/goal_pose', self._goal_callback, 10)
+        self._path_sub = self.create_subscription(
+            Path, '/plan', self._path_callback, 10)
         self._odom_sub = self.create_subscription(
-            Odometry, mavros_odom_topic, self._odom_callback, 10)
+            Odometry, mavros_odom_topic, self._odom_callback, mavros_qos)
         self._nav2_cmd_sub = self.create_subscription(
             Twist, nav2_cmd_vel_topic, self._nav2_cmd_callback, 10)
 
@@ -123,6 +133,20 @@ class PX4MavrosBridge(Node):
                 'Switch PX4 to OFFBOARD mode now.')
         self.get_logger().info(
             f'New goal (map frame): ({self._goal_x:.2f}, {self._goal_y:.2f})')
+
+    def _path_callback(self, msg: Path):
+        if not msg.poses:
+            return
+        # Use the last pose in the path as the current goal so the
+        # goal-tolerance check in _setpoint_callback works correctly.
+        last = msg.poses[-1].pose.position
+        self._goal_x = last.x
+        self._goal_y = last.y
+        if not self._active:
+            self._active = True
+            self.get_logger().info(
+                'Path received from exploration — setpoint stream ACTIVE. '
+                'Switch PX4 to OFFBOARD mode now.')
 
     def _odom_callback(self, msg: Odometry):
         self._odom_pub.publish(msg)

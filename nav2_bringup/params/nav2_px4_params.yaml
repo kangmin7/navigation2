@@ -19,8 +19,8 @@ bt_navigator:
     use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
-    # MAVROS local position odometry topic
-    odom_topic: /mavros/local_position/odom
+    # Bridge relays MAVROS odom to /odom with RELIABLE QoS
+    odom_topic: /odom
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -314,8 +314,8 @@ velocity_smoother:
     min_velocity: [-0.5, -0.5, -2.0]
     max_accel: [2.0, 0.0, 3.2]
     max_decel: [-2.0, 0.0, -3.2]
-    # MAVROS local position odometry topic
-    odom_topic: /mavros/local_position/odom
+    # Bridge relays MAVROS odom to /odom with RELIABLE QoS
+    odom_topic: /odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
