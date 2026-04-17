@@ -19,8 +19,8 @@ bt_navigator:
     use_sim_time: False
     global_frame: map
     robot_base_frame: base_link
-    # Bridge relays MAVROS odom to /odom with RELIABLE QoS
-    odom_topic: /odom
+    # MAVROS local position odometry topic
+    odom_topic: /mavros/local_position/odom
     bt_loop_duration: 10
     default_server_timeout: 20
     wait_for_service_timeout: 1000
@@ -114,12 +114,12 @@ controller_server:
       batch_size: 2000
       vx_std: 0.2
       vy_std: 0.2
-      wz_std: 0.8
+      wz_std: 0.4
       vx_max: 0.5
       vx_min: -0.5
       vy_max: 0.5
       vy_min: -0.5
-      wz_max: 2.0
+      wz_max: 1.0
       ax_max: 2.0
       ax_min: -2.0
       ay_max: 2.0
@@ -318,12 +318,12 @@ velocity_smoother:
     scale_velocities: False
     feedback: "OPEN_LOOP"
     # Match these to your vehicle's actual limits.
-    max_velocity: [0.5, 0.5, 2.0]
-    min_velocity: [-0.5, -0.5, -2.0]
+    max_velocity: [0.5, 0.5, 1.0]
+    min_velocity: [-0.5, -0.5, -1.0]
     max_accel: [2.0, 0.0, 3.2]
     max_decel: [-2.0, 0.0, -3.2]
-    # Bridge relays MAVROS odom to /odom with RELIABLE QoS
-    odom_topic: /odom
+    # MAVROS local position odometry topic
+    odom_topic: /mavros/local_position/odom
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
     velocity_timeout: 1.0
