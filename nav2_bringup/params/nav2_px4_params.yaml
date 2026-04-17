@@ -131,13 +131,21 @@ controller_server:
       gamma: 0.015
       motion_model: "Omni"
       visualize: false
-      critics: ["ConstraintCritic", "GoalCritic", "GoalAngleCritic",
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic",
                 "PathAlignCritic", "PathFollowCritic", "PathAngleCritic",
                 "PreferForwardCritic"]
       ConstraintCritic:
         enabled: true
         cost_power: 1
         cost_weight: 4.0
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
       GoalCritic:
         enabled: true
         cost_power: 1
