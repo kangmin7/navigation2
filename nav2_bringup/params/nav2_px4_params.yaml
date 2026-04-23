@@ -109,9 +109,9 @@ controller_server:
     # The bridge zeros angular.z so the drone navigates with fixed yaw.
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 56
+      time_steps: 30
       model_dt: 0.05
-      batch_size: 2000
+      batch_size: 1000
       vx_std: 0.2
       vy_std: 0.2
       wz_std: 0.3
@@ -254,7 +254,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 0.6
+        inflation_radius: 0.55
       always_send_full_costmap: True
 
 planner_server:
