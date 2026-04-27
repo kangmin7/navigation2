@@ -106,7 +106,7 @@ controller_server:
 
     # MPPI controller with Omni motion model for holonomic (pitch+roll) navigation.
     # Outputs linear.x (pitch), linear.y (roll), angular.z (yaw rate).
-    # The bridge zeros angular.z so the drone navigates with fixed yaw.
+    # The bridge passes angular.z through unchanged — drone rotates to face path.
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
       time_steps: 30
@@ -254,7 +254,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 0.55
+        inflation_radius: 0.7
       always_send_full_costmap: True
 
 planner_server:
@@ -269,7 +269,7 @@ planner_server:
       max_iterations: 1000000
       max_on_approach_iterations: 1000
       max_planning_time: 2.0
-      cost_travel_multiplier: 4.0
+      cost_travel_multiplier: 8.0
       use_final_approach_orientation: false
       smoother:
         max_iterations: 1000
@@ -329,8 +329,8 @@ velocity_smoother:
     scale_velocities: False
     feedback: "OPEN_LOOP"
     # Match these to your vehicle's actual limits.
-    max_velocity: [0.5, 0.5, 2.0]
-    min_velocity: [-0.5, -0.5, -2.0]
+    max_velocity: [0.5, 0.5, 1.0]
+    min_velocity: [-0.5, -0.5, -1.0]
     max_accel: [2.0, 2.0, 3.2]
     max_decel: [-2.0, -2.0, -3.2]
     # MAVROS local position odometry topic
