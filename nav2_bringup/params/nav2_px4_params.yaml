@@ -109,9 +109,9 @@ controller_server:
     # The bridge passes angular.z through unchanged — drone rotates to face path.
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 20
+      time_steps: 30
       model_dt: 0.2
-      batch_size: 1000
+      batch_size: 750
       vx_std: 0.2
       vy_std: 0.2
       wz_std: 0.3
@@ -254,13 +254,13 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 1.0
-        inflation_radius: 0.7
+        inflation_radius: 0.67
       always_send_full_costmap: True
 
 planner_server:
   ros__parameters:
     use_sim_time: False
-    expected_planner_frequency: 20.0
+    expected_planner_frequency: 5.0
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_smac_planner/SmacPlanner2D"
@@ -293,7 +293,7 @@ behavior_server:
     use_sim_time: False
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
-    cycle_frequency: 10.0
+    cycle_frequency: 5.0
     behavior_plugins: ["spin", "backup", "drive_on_heading", "wait"]
     spin:
       plugin: "nav2_behaviors/Spin"
@@ -314,7 +314,7 @@ behavior_server:
 waypoint_follower:
   ros__parameters:
     use_sim_time: False
-    loop_rate: 20
+    loop_rate: 5
     stop_on_failure: false
     waypoint_task_executor_plugin: "wait_at_waypoint"
     wait_at_waypoint:
@@ -325,7 +325,7 @@ waypoint_follower:
 velocity_smoother:
   ros__parameters:
     use_sim_time: False
-    smoothing_frequency: 20.0
+    smoothing_frequency: 5.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
     # Match these to your vehicle's actual limits.
