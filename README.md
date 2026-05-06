@@ -1,7 +1,7 @@
-# Navigation2 for PX4 Drone
+# Navigation2 for m-explore-ros2-px4
 
 Custom [Navigation2](https://github.com/ros-planning/navigation2) for integration
-with [PX4-Autopilot](https://github.com/kangmin7/PX4-Autopilot) and [MAVROS](https://github.com/kangmin7/mavros),
+with [PX4-Autopilot](https://github.com/kangmin7/m-explore-ros2-px4),
 targeting ROS 2 Humble
 
 ---
